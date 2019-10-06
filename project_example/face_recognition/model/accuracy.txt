@@ -1,0 +1,10 @@
+1, validation_accuracy: 81.28125
+2, validation_accuracy: 90.25
+3, validation_accuracy: 90.3125
+4, validation_accuracy: 90.4375
+5, validation_accuracy: 89.671875
+6, validation_accuracy: 91.921875
+7, validation_accuracy: 91.296875
+8, validation_accuracy: 91.671875
+9, validation_accuracy: 91.296875
+10, validation_accuracy: 91.734375

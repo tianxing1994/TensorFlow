@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:/Users/Administrator/PycharmProjects/TensorFlow/datasets/models/LeNet_model/model.ckpt"
+all_model_checkpoint_paths: "C:/Users/Administrator/PycharmProjects/TensorFlow/datasets/models/LeNet_model/model.ckpt"

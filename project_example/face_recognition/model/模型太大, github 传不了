@@ -1,0 +1,6 @@
+model_checkpoint_path: "faces.ckpt-10"
+all_model_checkpoint_paths: "faces.ckpt-8"
+all_model_checkpoint_paths: "faces.ckpt-9"
+all_model_checkpoint_paths: "faces.ckpt-10"
+
+几个训练出来的模型都大于 100 M 了, 传不到 GitHub 上去.
