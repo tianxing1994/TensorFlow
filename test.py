@@ -1,6 +1,7 @@
-import numpy as np
-import random
+from tqdm import trange
 
 
-index = random.choices(range(10), k=3)
-print(index)
+for i in trange(100):
+    #do something
+    print('hi')
+    pass

@@ -3,3 +3,5 @@
 .idea
 project_example/face_recognition/dataset
 project_example/face_recognition/local_model
+project_example/mtcnn_face_detect_pnet/dataset/test
+project_example/mtcnn_face_detect_pnet/dataset/train
