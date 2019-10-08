@@ -5,3 +5,6 @@ project_example/face_recognition/dataset
 project_example/face_recognition/local_model
 project_example/mtcnn_face_detect_pnet/dataset/test
 project_example/mtcnn_face_detect_pnet/dataset/train
+project_example/mtcnn_face_detect_pnet/dataset/WIDER_test
+project_example/mtcnn_face_detect_pnet/dataset/WIDER_train
+project_example/mtcnn_face_detect_pnet/dataset/WIDER_val
