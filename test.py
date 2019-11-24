@@ -1,8 +1,13 @@
-import os
-import numpy as np
-import cv2 as cv
-import random
+import tensorflow as tf
 
-x0, y0, s0 = np.random.normal(loc=0, scale=10, size=3)
 
-print(x0, y0, s0)
+x = tf.constant([[1., 1.],
+                 [2., 2.]])
+m = tf.reduce_mean(x)
+
+with tf.Session() as sess:
+    result = sess.run(m)
+
+print(type(result))
+
+

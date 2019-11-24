@@ -63,7 +63,7 @@ class Optimizer(object):
                                                                           shuffle=False):
                 # sess.run, 计算 train_op, loss, acc. 其中 train_op 是优化的必须操作, 其它的只为获取其值.
                 _, loss, accuracy = self._sess.run(fetches=[self._train_op, self._loss, self._accuracy],
-                                            feed_dict={self._x: x_train_a, self._y: y_train_a})
+                                                   feed_dict={self._x: x_train_a, self._y: y_train_a})
                 train_loss += loss
                 train_accuracy += accuracy
                 n_batch += 1

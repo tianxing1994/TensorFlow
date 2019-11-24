@@ -35,7 +35,6 @@ WIDER FACE数据集基于 61 个事件类别进行组织. 对于每个事件类�
 用户需要提交最终的预测文件, 我们将对其进行评估.
 """
 import os
-import random
 
 import cv2 as cv
 import numpy as np
@@ -105,7 +104,8 @@ class DataLoader(object):
             index = np.random.randint(bounding_box.shape[0])
             x_, y_, w_, h_ = bounding_box[index]
             roi_size_ = np.max([w_, h_])
-            sigma = np.random.choice([roi_size_ / 15, roi_size_ / 2])
+            # 三个方差, 分别用于调节三种标签的比例, 需要一个比较大的标签以在离人脸较远的地方截取 roi
+            sigma = np.random.choice([roi_size_ / 20, roi_size_ / 5, roi_size_ * 2])
             x0, y0, s0 = np.random.normal(loc=0, scale=sigma, size=3)
 
             roi_size = np.clip(roi_size_ + int(s0), roi_min_size, roi_max_size)
