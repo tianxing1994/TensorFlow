@@ -385,75 +385,55 @@ def sort_rectangle(poly):
 
 
 def restore_rectangle_rbox(origin, geometry):
-    d = geometry[:, :4]
+    """
+    author: tianxing
+    contact: 13530604154
+    date: 2019/11/25
+    将点坐标 origin, 及每个点的矩形框信息转换为 8 个点坐标的矩形四角坐标.
+    矩阵的顺时针旋转变换: [[x'], [y']] = [[cosα, -sinα], [sinα, cosα]] · [[x], [y]]
+    需要注意, 上面的矩阵旋转是绕原点 (0, 0) 进行. 所以, 按指定点 (x0, y0) 旋转则需要先将该点移到到原点.
+    执行过旋转之后再移动回 (x0, y0).
+    因为 geometry 中已经提供了矩形每边相对于原点的距离. 所以, 可以直接以此信息先执行旋转, 再向 (x0, y0) 移动.
+    :param origin: ndarray, 形状为 (m, 2), 表示每个锚点的坐标 (x, y).
+    :param geometry: ndarray, 形状为 (m, 5), 以每个锚点为中心,
+    5 个值, 前 4 个分别表示对应点得出的以其为中心文本框上右下左到该点的距离, 最后一个为文本逆时针旋转的角度.
+    :return:
+    """
+    d0 = geometry[:, 0]
+    d1 = geometry[:, 1]
+    d2 = geometry[:, 2]
+    d3 = geometry[:, 3]
     angle = geometry[:, 4]
-    # for angle > 0
-    origin_0 = origin[angle >= 0]
-    d_0 = d[angle >= 0]
-    angle_0 = angle[angle >= 0]
-    if origin_0.shape[0] > 0:
-        p = np.array([np.zeros(d_0.shape[0]), -d_0[:, 0] - d_0[:, 2],
-                      d_0[:, 1] + d_0[:, 3], -d_0[:, 0] - d_0[:, 2],
-                      d_0[:, 1] + d_0[:, 3], np.zeros(d_0.shape[0]),
-                      np.zeros(d_0.shape[0]), np.zeros(d_0.shape[0]),
-                      d_0[:, 3], -d_0[:, 2]])
-        p = p.transpose((1, 0)).reshape((-1, 5, 2))  # N*5*2
 
-        rotate_matrix_x = np.array([np.cos(angle_0), np.sin(angle_0)]).transpose((1, 0))
-        rotate_matrix_x = np.repeat(rotate_matrix_x, 5, axis=1).reshape(-1, 2, 5).transpose((0, 2, 1))  # N*5*2
+    anchor = np.concatenate([origin]*4, axis=1)
+    # 计算矩形每个角点的坐标, 顺序: 左上角, 右上角, 右下角, 左下角, 按 [x0, y0, x1, y1, x2, y2, x3, y3]
+    # 应注意, x 向右为正, y 向下为正.
+    vertex = np.stack([-d3, -d0, d1, -d0, d1, d2, -d3, d2], axis=1)
+    angle_cos = np.cos(angle)
+    angle_sin = np.sin(angle)
 
-        rotate_matrix_y = np.array([-np.sin(angle_0), np.cos(angle_0)]).transpose((1, 0))
-        rotate_matrix_y = np.repeat(rotate_matrix_y, 5, axis=1).reshape(-1, 2, 5).transpose((0, 2, 1))
+    x0 = vertex[:, 0]
+    y0 = vertex[:, 1]
+    x1 = vertex[:, 2]
+    y1 = vertex[:, 3]
+    x2 = vertex[:, 4]
+    y2 = vertex[:, 5]
+    x3 = vertex[:, 6]
+    y3 = vertex[:, 7]
 
-        p_rotate_x = np.sum(rotate_matrix_x * p, axis=2)[:, :, np.newaxis]  # N*5*1
-        p_rotate_y = np.sum(rotate_matrix_y * p, axis=2)[:, :, np.newaxis]  # N*5*1
+    # 计算旋转后的顶点, 应注意, geometry 给出的角度为逆时针的角度, 而公式中的为顺时针旋转的角度.
+    x0_ = x0 * angle_cos + y0 * angle_sin
+    y0_ = x0 * -angle_sin + y0 * angle_cos
+    x1_ = x1 * angle_cos + y1 * angle_sin
+    y1_ = x1 * -angle_sin + y1 * angle_cos
+    x2_ = x2 * angle_cos + y2 * angle_sin
+    y2_ = x2 * -angle_sin + y2 * angle_cos
+    x3_ = x3 * angle_cos + y3 * angle_sin
+    y3_ = x3 * -angle_sin + y3 * angle_cos
 
-        p_rotate = np.concatenate([p_rotate_x, p_rotate_y], axis=2)  # N*5*2
-
-        p3_in_origin = origin_0 - p_rotate[:, 4, :]
-        new_p0 = p_rotate[:, 0, :] + p3_in_origin  # N*2
-        new_p1 = p_rotate[:, 1, :] + p3_in_origin
-        new_p2 = p_rotate[:, 2, :] + p3_in_origin
-        new_p3 = p_rotate[:, 3, :] + p3_in_origin
-
-        new_p_0 = np.concatenate([new_p0[:, np.newaxis, :], new_p1[:, np.newaxis, :],
-                                  new_p2[:, np.newaxis, :], new_p3[:, np.newaxis, :]], axis=1)  # N*4*2
-    else:
-        new_p_0 = np.zeros((0, 4, 2))
-    # for angle < 0
-    origin_1 = origin[angle < 0]
-    d_1 = d[angle < 0]
-    angle_1 = angle[angle < 0]
-    if origin_1.shape[0] > 0:
-        p = np.array([-d_1[:, 1] - d_1[:, 3], -d_1[:, 0] - d_1[:, 2],
-                      np.zeros(d_1.shape[0]), -d_1[:, 0] - d_1[:, 2],
-                      np.zeros(d_1.shape[0]), np.zeros(d_1.shape[0]),
-                      -d_1[:, 1] - d_1[:, 3], np.zeros(d_1.shape[0]),
-                      -d_1[:, 1], -d_1[:, 2]])
-        p = p.transpose((1, 0)).reshape((-1, 5, 2))  # N*5*2
-
-        rotate_matrix_x = np.array([np.cos(-angle_1), -np.sin(-angle_1)]).transpose((1, 0))
-        rotate_matrix_x = np.repeat(rotate_matrix_x, 5, axis=1).reshape(-1, 2, 5).transpose((0, 2, 1))  # N*5*2
-
-        rotate_matrix_y = np.array([np.sin(-angle_1), np.cos(-angle_1)]).transpose((1, 0))
-        rotate_matrix_y = np.repeat(rotate_matrix_y, 5, axis=1).reshape(-1, 2, 5).transpose((0, 2, 1))
-
-        p_rotate_x = np.sum(rotate_matrix_x * p, axis=2)[:, :, np.newaxis]  # N*5*1
-        p_rotate_y = np.sum(rotate_matrix_y * p, axis=2)[:, :, np.newaxis]  # N*5*1
-
-        p_rotate = np.concatenate([p_rotate_x, p_rotate_y], axis=2)  # N*5*2
-
-        p3_in_origin = origin_1 - p_rotate[:, 4, :]
-        new_p0 = p_rotate[:, 0, :] + p3_in_origin  # N*2
-        new_p1 = p_rotate[:, 1, :] + p3_in_origin
-        new_p2 = p_rotate[:, 2, :] + p3_in_origin
-        new_p3 = p_rotate[:, 3, :] + p3_in_origin
-
-        new_p_1 = np.concatenate([new_p0[:, np.newaxis, :], new_p1[:, np.newaxis, :],
-                                  new_p2[:, np.newaxis, :], new_p3[:, np.newaxis, :]], axis=1)  # N*4*2
-    else:
-        new_p_1 = np.zeros((0, 4, 2))
-    return np.concatenate([new_p_0, new_p_1])
+    vertices = np.stack([x0_, y0_, x1_, y1_, x2_, y2_, x3_, y3_], axis=1)
+    result = anchor + vertices
+    return result
 
 
 def restore_rectangle(origin, geometry):

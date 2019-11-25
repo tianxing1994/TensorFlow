@@ -19,6 +19,7 @@ from icdar import restore_rectangle
 
 FLAGS = tf.app.flags.FLAGS
 
+
 def get_images():
     '''
     find image files in test data path
@@ -90,9 +91,9 @@ def detect(score_map, geo_map, timer, score_map_thresh=0.8, box_thresh=0.1, nms_
     start = time.time()
     text_box_restored = restore_rectangle(xy_text[:, ::-1]*4, geo_map[xy_text[:, 0], xy_text[:, 1], :]) # N*4*2
     print('{} text boxes before nms'.format(text_box_restored.shape[0]))
-    boxes = np.zeros((text_box_restored.shape[0], 9), dtype=np.float32)
-    boxes[:, :8] = text_box_restored.reshape((-1, 8))
-    boxes[:, 8] = score_map[xy_text[:, 0], xy_text[:, 1]]
+    score = np.expand_dims(score_map[xy_text[:, 0], xy_text[:, 1]], axis=1)
+    boxes = np.concatenate([text_box_restored, score], axis=1)
+
     timer['restore'] = time.time() - start
     # nms part
     start = time.time()
@@ -104,7 +105,7 @@ def detect(score_map, geo_map, timer, score_map_thresh=0.8, box_thresh=0.1, nms_
     if boxes.shape[0] == 0:
         return None, timer
 
-    # here we filter some low score boxes by the average score map, this is different from the orginal paper
+    # 计算每个 box 包含的点在 score_map 内的平均得分, 小于 box_thresh 的去除.
     for i, box in enumerate(boxes):
         mask = np.zeros_like(score_map, dtype=np.uint8)
         cv2.fillPoly(mask, box[:8].reshape((-1, 4, 2)).astype(np.int32) // 4, 1)

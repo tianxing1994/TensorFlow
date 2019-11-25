@@ -1,21 +1,8 @@
+import cv2 as cv
 import numpy as np
-from imutils.object_detection import non_max_suppression
 
 
-boxes = np.array([[1, 1, 4, 4],
-                  [1.1, 0.9, 4.2, 3.5],
-                  [3.6, 3.9, 5.4, 6.2]])
-
-
-probs = np.array([1, 0.7, 0.6])
-
-result = non_max_suppression(boxes=boxes, probs=probs, overlapThresh=0.95)
-
-print(result)
-
-
-
-
-
-
-
+rect1 = np.array([[10, 10], [60, 10], [60, 60], [10, 60]])
+rect2 = np.array([[40, 40], [90, 40], [90, 90], [40, 90]])
+falg, vertices = cv.rotatedRectangleIntersection(rect1, rect2)
+print(vertices)
