@@ -56,20 +56,21 @@ def standard_nms(boxes, iou_threshold):
     return boxes[keep]
 
 
-def locality_non_max_suppression(boxes, iou_threshold=0.3):
+def locality_non_max_suppression(boxes, merge_iou_threshold=0.1, nms_iou_threshold=0.3):
     """
     非极大值抑制.
     如果在空间位置上相近的两个矩形, 且都具有较高的概率指示为文本.
     在这种情况, 很有可能是两个文字(一个词语或句子),
     首先, 我们需要将它们合成一个文本串. 再用合并后的矩形框进行非极大值抑制.
     :param boxes: ndarray, 形状为: (m, 9) 表示 m 个四边形, 每一行的值分别表示: (x0, y0, x1, y1, x2, y2, x3, y3, probs)
-    :param iou_threshold: iou 阈值.
+    :param merge_iou_threshold: Rect 矩形合并时的 IOU 阈值.
+    :param nms_iou_threshold: 非极大值抑制的 IOU 阈值.
     :return: 非极大值抑制后的 boxes.
     """
     pre_nms_boxes = []
     previous_box = None
     for box in boxes:
-        if previous_box is not None and calc_iou(box, previous_box) > iou_threshold:
+        if previous_box is not None and calc_iou(box, previous_box) > merge_iou_threshold:
             previous_box = merge_rect(box, previous_box)
         else:
             if previous_box is not None:
@@ -80,4 +81,4 @@ def locality_non_max_suppression(boxes, iou_threshold=0.3):
 
     if len(pre_nms_boxes) == 0:
         return np.array([])
-    return standard_nms(np.array(pre_nms_boxes), iou_threshold)
+    return standard_nms(boxes=np.array(pre_nms_boxes), iou_threshold=nms_iou_threshold)
