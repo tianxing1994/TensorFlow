@@ -5,8 +5,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-import locality_aware_nms as nms_locality
-# import lanms
+import locality_aware_nms
 
 tf.app.flags.DEFINE_string('test_data_path', '/tmp/ch4_test_images/images/', '')
 tf.app.flags.DEFINE_string('gpu_list', '0', '')
@@ -97,8 +96,7 @@ def detect(score_map, geo_map, timer, score_map_thresh=0.8, box_thresh=0.1, nms_
     timer['restore'] = time.time() - start
     # nms part
     start = time.time()
-    # boxes = nms_locality.nms_locality(boxes.astype(np.float64), nms_thres)
-    # boxes = lanms.merge_quadrangle_n9(boxes.astype('float32'), nms_thres)
+    boxes = locality_aware_nms.locality_non_max_suppression(boxes.astype(np.float64), nms_thres)
 
     timer['nms'] = time.time() - start
 
@@ -193,6 +191,7 @@ def main(argv=None):
                 if not FLAGS.no_write_images:
                     img_path = os.path.join(FLAGS.output_dir, os.path.basename(im_fn))
                     cv2.imwrite(img_path, im[:, :, ::-1])
+
 
 if __name__ == '__main__':
     tf.app.run()

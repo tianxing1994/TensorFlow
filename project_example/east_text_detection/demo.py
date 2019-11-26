@@ -15,7 +15,6 @@ import numpy as np
 import tensorflow as tf
 import model
 # from icdar import restore_rectangle
-# import lanms
 from eval import resize_image, sort_poly, detect
 
 
@@ -28,7 +27,7 @@ def draw_illu(illu, rst):
         d = np.array([t['x0'], t['y0'], t['x1'], t['y1'],
                       t['x2'], t['y2'], t['x3'], t['y3']], dtype='int32')
         d = d.reshape(-1, 2)
-        cv2.polylines(illu, [d], isClosed=True, color=(255, 255, 0))
+        cv2.polylines(illu, [d], isClosed=True, color=(255, 255, 0), thickness=2)
     return illu
 
 
@@ -100,7 +99,6 @@ def predictor(img):
 
     # score_map 表示每个对应点为文字的得分.
     # geometry 中每个点对应 5 个值, 分别表示对应点得出的以其为中心文本框上右下左到该点的距离, 最后一个为文本逆时针旋转的角度.
-    print(geometry.shape)
     boxes, timer = detect(score_map=score, geo_map=geometry, timer=timer)
     logger.info('net {:.0f}ms, restore {:.0f}ms, nms {:.0f}ms'.format(
         timer['net'] * 1000, timer['restore'] * 1000, timer['nms'] * 1000))
@@ -146,4 +144,3 @@ if __name__ == '__main__':
     cv2.imshow(winname='input image', mat=image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
