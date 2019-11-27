@@ -1,12 +1,11 @@
-import tensorflow as tf
 import numpy as np
-
+import tensorflow as tf
 from tensorflow.contrib import slim
-
-tf.app.flags.DEFINE_integer('text_scale', 512, '')
 
 from nets import resnet_v1
 
+
+tf.app.flags.DEFINE_integer('text_scale', 512, '')
 FLAGS = tf.app.flags.FLAGS
 
 
@@ -41,10 +40,10 @@ def model(images, weight_decay=1e-5, is_training=True):
 
     with tf.variable_scope('feature_fusion', values=[end_points.values]):
         batch_norm_params = {
-        'decay': 0.997,
-        'epsilon': 1e-5,
-        'scale': True,
-        'is_training': is_training
+            'decay': 0.997,
+            'epsilon': 1e-5,
+            'scale': True,
+            'is_training': is_training
         }
         with slim.arg_scope([slim.conv2d],
                             activation_fn=tf.nn.relu,
@@ -70,15 +69,13 @@ def model(images, weight_decay=1e-5, is_training=True):
                     g[i] = slim.conv2d(h[i], num_outputs[i], 3)
                 print('Shape of h_{} {}, g_{} {}'.format(i, h[i].shape, i, g[i].shape))
 
-            # here we use a slightly different way for regression part,
-            # we first use a sigmoid to limit the regression range, and also
-            # this is do with the angle map
+            # 这里我们对回归部分使用略有不同的方式,
+            # 先用 sigmoid 将值回归到 0-1 之间, 再调整值汇聚围.
             F_score = slim.conv2d(g[3], 1, 1, activation_fn=tf.nn.sigmoid, normalizer_fn=None)
-            # 4 channel of axis aligned bbox and 1 channel rotation angle
             geo_map = slim.conv2d(g[3], 4, 1, activation_fn=tf.nn.sigmoid, normalizer_fn=None) * FLAGS.text_scale
-            angle_map = (slim.conv2d(g[3], 1, 1, activation_fn=tf.nn.sigmoid, normalizer_fn=None) - 0.5) * np.pi/2 # angle is between [-45, 45]
+            # 角度值在 [-45, 45] 之间.
+            angle_map = (slim.conv2d(g[3], 1, 1, activation_fn=tf.nn.sigmoid, normalizer_fn=None) - 0.5) * np.pi/2
             F_geometry = tf.concat([geo_map, angle_map], axis=-1)
-
     return F_score, F_geometry
 
 

@@ -1,13 +1,18 @@
+# coding=utf-8
 import tensorflow as tf
 
-
-x = tf.constant([[1., 1.],
-                 [2., 2.]])
-m = tf.reduce_mean(x)
-
-with tf.Session() as sess:
-    result = sess.run(m)
-
-print(type(result))
+flags = tf.app.flags
+FLAGS = flags.FLAGS
+tf.app.flags.DEFINE_integer("data", 10, "")
+tf.app.flags.DEFINE_boolean("istrain", "True", "")
 
 
+def main(executable):
+    print(executable)
+    print(FLAGS.data)
+    print(FLAGS.istrain)
+    return
+
+
+if __name__ == "__main__":
+    tf.app.run()
