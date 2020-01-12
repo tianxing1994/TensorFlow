@@ -5,9 +5,8 @@ https://github.com/argman/EAST
 ``` 
 
 原作者已经训练好了模型并分享了 ckpt 训练参数文件. 我需要将其在本地运行起来. 
-运行 demo.py 文件以执行图像文本检测. 
-
-1. 需要将该部分移动到工程根目录, 则可以运行. 
+ 
+1. 运行 demo.py 文件以执行图像文本检测.
 2. Shapely 库, 需要先下载 whl 文件. 
 下载路径: 
 ```angular2html

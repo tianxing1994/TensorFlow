@@ -1,0 +1,4 @@
+model_checkpoint_path: "box_regression.ckpt-1000"
+all_model_checkpoint_paths: "box_regression.ckpt-998"
+all_model_checkpoint_paths: "box_regression.ckpt-999"
+all_model_checkpoint_paths: "box_regression.ckpt-1000"
