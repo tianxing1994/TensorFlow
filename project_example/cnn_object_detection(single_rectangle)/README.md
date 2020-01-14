@@ -2,6 +2,8 @@
 通过卷积神经网络作回归任务, 检测图像中的单个目标. 
 这里的数据集是通过代码生成的. 图片底为黑色, 有单个物体为任意白色矩形. 
 
+其实就是普通的分类任务的网络, 在损失函数那里改成让它输出 4 个值, 
+计算这 4 个值与目标 bounding box 4 个值之间的最小方差和. 
 
 #### 参考链接:
 https://www.kaggle.com/soumikrakshit/object-detection-single-rectangle
