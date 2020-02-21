@@ -12,3 +12,5 @@ project_example/mtcnn_face_detect_pnet/dataset/train
 project_example/mtcnn_face_detect_pnet/dataset/WIDER_test
 project_example/mtcnn_face_detect_pnet/dataset/WIDER_train
 project_example/mtcnn_face_detect_pnet/dataset/WIDER_val
+
+datasets/models/vgg/vgg_scipy/imagenet-vgg-verydeep-19.mat
